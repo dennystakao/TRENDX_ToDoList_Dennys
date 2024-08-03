@@ -46,6 +46,25 @@ namespace TRENDX_ToDoList_Dennys.API.Controllers
             return tarefaOutput;
         }
 
+        private string ValidarTarefa(TarefaInput tarefaInput)
+        {
+            string retorno = string.Empty;
+
+            if (string.IsNullOrEmpty(tarefaInput.Title))
+                retorno = retorno + (string.IsNullOrEmpty(retorno) ? "" : "\n") + "Title é um campo texto obrigatório.";
+
+            if (tarefaInput.Title.Length > 50)
+                retorno = retorno + (string.IsNullOrEmpty(retorno) ? "" : "\n") + "O campo Title possui um tamanho máximo de 50 caracteres.";
+
+            if (string.IsNullOrEmpty(tarefaInput.Description))
+                retorno = retorno + (string.IsNullOrEmpty(retorno) ? "" : "\n") + "Description é um campo texto obrigatório.";
+
+            if (tarefaInput.Description.Length > 250)
+                retorno = retorno + (string.IsNullOrEmpty(retorno) ? "" : "\n") + "O campo Description possui um tamanho máximo de 250 caracteres.";
+
+            return retorno;
+        }
+
         /// <summary>
         /// 1. Endpoint para Adicionar uma Tarefa:
         /// </summary>
@@ -80,25 +99,6 @@ namespace TRENDX_ToDoList_Dennys.API.Controllers
             _tarefaDbContext.SaveChanges();
 
             return CustomResponse(StatusCodes.Status200OK, RetornaTarefaOutput(tarefa));
-        }
-
-        private string ValidarTarefa(TarefaInput tarefaInput)
-        {
-            string retorno = string.Empty;
-
-            if (string.IsNullOrEmpty(tarefaInput.Title))
-                retorno = retorno + (string.IsNullOrEmpty(retorno) ? "" : "\n") + "Title é um campo texto obrigatório.";
-
-            if (tarefaInput.Title.Length > 50)
-                retorno = retorno + (string.IsNullOrEmpty(retorno) ? "" : "\n") + "O campo Title possui um tamanho máximo de 50 caracteres.";
-
-            if (string.IsNullOrEmpty(tarefaInput.Description))
-                retorno = retorno + (string.IsNullOrEmpty(retorno) ? "" : "\n") + "Description é um campo texto obrigatório.";
-
-            if (tarefaInput.Description.Length > 250)
-                retorno = retorno + (string.IsNullOrEmpty(retorno) ? "" : "\n") + "O campo Description possui um tamanho máximo de 250 caracteres.";
-
-            return retorno;
         }
 
         /// <summary>
@@ -173,6 +173,10 @@ namespace TRENDX_ToDoList_Dennys.API.Controllers
             var tarefa = _tarefaDbContext.Tarefas.FirstOrDefault(x => !x.IsDeleted && x.Id == id);
             if (tarefa == null)
                 return CustomResponse(StatusCodes.Status404NotFound);
+
+            string mensagemErro = ValidarTarefa(tarefaInput);
+            if (!string.IsNullOrEmpty(mensagemErro))
+                return CustomResponse(StatusCodes.Status400BadRequest, null, mensagemErro);
 
             tarefa.Atualizar(tarefaInput.Title, tarefaInput.Description, tarefaInput.Completed);
             _tarefaDbContext.SaveChanges();
