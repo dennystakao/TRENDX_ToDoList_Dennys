@@ -1,0 +1,6 @@
+@TRENDX_ToDoList_Dennys.API_HostAddress = http://localhost:5137
+
+GET {{TRENDX_ToDoList_Dennys.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
